@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat Room - <%= chatId %></title>
+  <link rel="stylesheet" href="/styles.css" />
+  <!-- Load CryptoJS for AES decryption -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<body>
+  <!-- Username Modal: User must enter a display name -->
+  <div id="username-modal" class="username-modal">
+    <div class="username-modal-content">
+      <h3>Enter Your Display Name</h3>
+      <input type="text" id="username-input" placeholder="Your name" />
+      <button id="username-submit">Join Chat</button>
+    </div>
+  </div>
+
+  <!-- Chat Window -->
+  <div class="chat-wrapper">
+    <header class="chat-header">
+      <h2>Chat Room: <%= chatId %></h2>
+      <div class="chat-status">
+        <span id="connection-indicator" title="Ping: calculating..."></span>
+        <span id="user-count">0 connected</span>
+        <button id="delete-chat">Delete Chat</button>
+      </div>
+    </header>
+    <div class="chat-messages" id="messages">
+      <!-- Chat messages will appear here -->
+    </div>
+    <div class="chat-input">
+      <input type="text" id="message" placeholder="Type a message..." autocomplete="off" />
+      <button id="send-button">Send</button>
+    </div>
+  </div>
+  
+  <script>
+    // Pass variables from the server-rendered template to the client script.
+    const chatId = "<%= chatId %>";
+    const chatPassword = "<%= chatPassword %>";
+  </script>
+  <script src="/chat.js"></script>
+</body>
+</html>

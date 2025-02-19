@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Snugchat - Private Chats Made Simple</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Welcome to Snugchat</h1>
+    <p>AES Encryption, No Cookies 🍪 &amp; No IP-Logging</p>
+  </header>
+
+  <!-- Error Modal Popup (if any) -->
+  <% if (error) { %>
+    <div id="error-modal" class="error-modal">
+      <div class="error-modal-content">
+        <p id="error-message"><%= error %></p>
+        <button id="error-close">Close</button>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Marketing Section -->
+  <section class="marketing">
+    <p>
+      Stay connected with your partner, friends, or crew – anytime, anywhere.
+      Lost your phone? Just remember your chat code and password, and your conversation
+      is waiting for you. Snugchat is a modern, simple, and cozy digital hangout for everyone.
+    </p>
+  </section>
+
+  <div class="cards-container">
+    <!-- Generate a Chat Card -->
+    <div class="card" id="generate-card">
+      <h2>Generate a Chat</h2>
+      <form id="generate-form">
+        <input type="password" id="gen-password" placeholder="Enter Chat Password" required />
+        <input type="text" id="chat-code-input" placeholder="Enter Chat Code (optional)" />
+        <span id="chat-code-status"></span>
+        <button type="submit">Generate Chat</button>
+      </form>
+      <div id="generated-chat" style="display:none;">
+        <p>Your Chat Code: <span id="chat-code"></span></p>
+        <a id="enter-chat" href="#">Enter Chat</a>
+      </div>
+    </div>
+    <!-- Join an Existing Chat Card -->
+    <div class="card" id="join-card">
+      <h2>Join a Chat</h2>
+      <form id="join-form">
+        <input type="text" id="join-chatId" name="chatId" placeholder="Enter Chat Code" required />
+        <input type="password" id="join-password" name="password" placeholder="Enter Chat Password" required />
+        <button type="submit">Join Chat</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer with GitHub Logo -->
+  <footer>
+    <a href="https://github.com/your-repo-link" target="_blank">
+      <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub Logo" />
+      Open Source Project on GitHub
+    </a>
+  </footer>
+
+  <script>
+    // Check chat code availability as you type (debounced)
+    const chatCodeInput = document.getElementById('chat-code-input');
+    const chatCodeStatus = document.getElementById('chat-code-status');
+    let debounceTimer;
+    chatCodeInput.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      const code = chatCodeInput.value.trim();
+      if (!code) {
+        chatCodeStatus.innerText = '';
+        return;
+      }
+      // Validate allowed characters
+      const allowedRegex = /^[A-Za-z0-9 _-]+$/;
+      if (!allowedRegex.test(code)) {
+        chatCodeStatus.innerText = 'Invalid format';
+        chatCodeStatus.style.color = 'red';
+        return;
+      }
+      debounceTimer = setTimeout(() => {
+        fetch(`/api/chats/check?chatCode=${encodeURIComponent(code)}`)
+          .then(response => response.json())
+          .then(data => {
+            if (data.available) {
+              chatCodeStatus.innerText = 'Available';
+              chatCodeStatus.style.color = 'green';
+            } else {
+              chatCodeStatus.innerText = 'Taken';
+              chatCodeStatus.style.color = 'red';
+            }
+          })
+          .catch(err => {
+            console.error(err);
+            chatCodeStatus.innerText = 'Error checking';
+            chatCodeStatus.style.color = 'red';
+          });
+      }, 500);
+    });
+
+    // When generating a chat, call the API and display the generated chat code.
+    document.getElementById('generate-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const password = document.getElementById('gen-password').value;
+      const chatCode = document.getElementById('chat-code-input').value.trim();
+      const body = { password };
+      if (chatCode) {
+        body.chatCode = chatCode;
+      }
+      const response = await fetch('/api/chats/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (response.ok) {
+        const data = await response.json();
+        document.getElementById('chat-code').innerText = data.chatId;
+        const enterLink = document.getElementById('enter-chat');
+        // For demo purposes, we pass the password in the query string (not secure in prod!)
+        enterLink.href = `/chat/${data.chatId}?password=${encodeURIComponent(password)}`;
+        document.getElementById('generated-chat').style.display = 'block';
+      } else {
+        alert("Error generating chat");
+      }
+    });
+
+    // Handle the join form submission by redirecting to the proper chat route.
+    document.getElementById('join-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const chatId = document.getElementById('join-chatId').value;
+      const password = document.getElementById('join-password').value;
+      window.location.href = `/chat/${chatId}?password=${encodeURIComponent(password)}`;
+    });
+
+    // Error modal logic: Close on button click or auto-close after 5 seconds.
+    const errorModal = document.getElementById('error-modal');
+    if (errorModal) {
+      document.getElementById('error-close').addEventListener('click', function() {
+        errorModal.style.display = 'none';
+      });
+      setTimeout(() => {
+        errorModal.style.display = 'none';
+      }, 5000);
+    }
+  </script>
+</body>
+</html>
