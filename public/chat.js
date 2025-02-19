@@ -4,7 +4,7 @@
  * 
  * NOTES:
  * - Uses a modal for entering display name.
- * - Establishes a WebSocket connection.
+ * - Establishes a WebSocket connection with the correct protocol (ws:// for HTTP, wss:// for HTTPS).
  * - Handles sending/receiving encrypted messages.
  * - Sends periodic "PING" messages to measure latency.
  * - Updates connection status and user count.
@@ -15,6 +15,11 @@ let username = ""; // Set via the username modal
 let ws;
 let lastPingTime = 0;
 let ping = 0;
+
+// Helper: Determine WebSocket protocol based on current page protocol
+function getWebSocketProtocol() {
+  return window.location.protocol === "https:" ? "wss" : "ws";
+}
 
 // Display a message in the chat window
 function displayMessage(user, text, timestamp) {
@@ -40,7 +45,8 @@ function decryptMessage(encryptedText, password) {
 }
 
 function connect() {
-  ws = new WebSocket(`ws://${window.location.host}/ws?chatId=${chatId}&password=${encodeURIComponent(chatPassword)}&username=${encodeURIComponent(username)}`);
+  const protocol = getWebSocketProtocol();
+  ws = new WebSocket(`${protocol}://${window.location.host}/ws?chatId=${chatId}&password=${encodeURIComponent(chatPassword)}&username=${encodeURIComponent(username)}`);
 
   ws.onopen = () => {
     console.log("Connected to chat server...");
