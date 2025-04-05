@@ -16,6 +16,7 @@ Snugchat is a secure, encrypted chat application built with Node.js, Express, Mo
 
 ## Overview
 
+
 Snugchat provides a simple yet secure platform for real-time communication. All messages are encrypted using AES encryption before being stored in MongoDB. Users can create chats by either using a system-generated code or choosing their own custom code. As you type your desired custom chat code, the interface checks for availability in real time and displays whether the code is available or already taken. 
 
 The chat interface displays connection status, including a visual indicator that turns green when connected (with live ping information on hover) and red when disconnected. It also shows how many users are currently connected to the chat. A "Delete Chat" option is provided to remove the chat after password verification.
