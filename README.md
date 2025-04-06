@@ -1,5 +1,7 @@
 # Snugchat - Private Chats Made Simple
 
+https://snugchat.chat/
+
 Snugchat is a secure, encrypted chat application built with Node.js, Express, MongoDB, and WebSockets. It is designed for private communication between partners, friend groups, or small teams. With a modern, responsive UI and real-time messaging, Snugchat offers features like custom chat code selection with live availability checking, connection status indicators, ping measurements, and an option to delete chats.
 
 ## Table of Contents
